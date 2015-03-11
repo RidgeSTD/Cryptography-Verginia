@@ -101,7 +101,7 @@ def main():
     filename = raw_input('Please input filename. Press ENTER directly for default file...')
     if filename == '':
         filename = 'bainiangudu.txt'
-    assign1.e(filename, 41)
+    assign1.e(filename, 20)
     k_int = attack("c.txt")
     k_chr = []
     print k_int
