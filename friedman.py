@@ -7,7 +7,8 @@ __author__ = 'alex'
 dis = {}
 tot = 0
 text = ''
-
+THRESHOLD = 0.07
+STANDARD_IC_EN = 0.067
 
 def scan_cyphertext(f_name = ""):
     global dis, tot, text
@@ -21,32 +22,6 @@ def scan_cyphertext(f_name = ""):
         tot += 1
 
 
-def count_text(st, k_l, m_text):
-    m_dis = {}
-    p = st
-    max_len = len(m_text)
-    n = 0
-    while p<max_len:
-        if not m_text[p] in m_dis:
-            m_dis[m_text[p]] = 1
-        else:
-            m_dis[m_text[p]] += 1
-        p += k_l
-        n += 1
-    return m_dis, n
-
-
-def calc_avg_ic(k_l, m_text):
-    avg_ic = 0
-    for st in xrange(0, k_l):
-        m_dis, n = count_text(st, k_l, m_text)
-        tmp = 0
-        for each in m_dis:
-            tmp += m_dis[each]*(m_dis[each] - 1)
-        avg_ic += tmp/n/(n-1)
-    return avg_ic/k_l
-
-
 def calc():
     global dis, tot
     k_o = 0
@@ -56,11 +31,11 @@ def calc():
             print "ERROR_OUT_OF_BOUND"
     k_o /= tot
     k_o /= (tot - 1)
-    return (0.067 - 0.0385)/(k_o - 0.0385)
+    return (STANDARD_IC_EN - 0.0385)/(k_o - 0.0385)
 
 
 def attack(arg=""):
-    global dis, tot, text
+    global dis, tot, text, THRESHOLD
     for x in xrange(ord('A'), ord('Z')+1):
         dis[chr(x)] = 0
     scan_cyphertext(arg)
@@ -70,13 +45,12 @@ def attack(arg=""):
     en = input('please input right search limit\n')
 
     # located search space, search now...
-    threshold = 0.007
 
     esti_len = 0
     for k in xrange(st, en+1):
-        tmp = calc_avg_ic(k, text)
+        tmp = assign1_global.calc_avg_ic(k, text)
         print('k: '+str(k)+', p: '+str(tmp))
-        if abs(tmp - 0.067) < threshold and esti_len == 0:
+        if abs(tmp - STANDARD_IC_EN) < THRESHOLD and esti_len == 0:
             esti_len = k
     print('The estimated length of KEY after comparation is: '+str(esti_len))
 
@@ -84,7 +58,7 @@ def attack(arg=""):
     m_dis = {}
     k_int = []
     for st in xrange(0, esti_len):
-        m_dis, n = count_text(st, esti_len, text)
+        m_dis, n = assign1_global.count_text(st, esti_len, text)
         tmp = -1
         for each in m_dis:
             if tmp<m_dis[each]:
@@ -101,7 +75,12 @@ def main():
     filename = raw_input('Please input filename. Press ENTER directly for default file...')
     if filename == '':
         filename = 'bainiangudu.txt'
-    assign1.e(filename, 20)
+    key_length = raw_input('Please input key length. Press ENTER directyly for default length 20')
+    if key_length=='':
+        key_length = 20
+    else:
+        key_length = int(key_length)
+    assign1.e(filename, key_length)
     k_int = attack("c.txt")
     k_chr = []
     print k_int
